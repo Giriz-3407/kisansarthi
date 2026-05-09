@@ -22,8 +22,3 @@ Flask backend for the KisanSarthi agriculture assistant.
    ```powershell
    python app.py
    ```
-
-## Notes
-
-- `farm_app.db` and `uploads/` are runtime artifacts and are excluded from git.
-- `venv/`, `__pycache__/`, and `.env` are also ignored.
