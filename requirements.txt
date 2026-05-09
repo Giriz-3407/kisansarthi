@@ -1,0 +1,9 @@
+flask
+python-dotenv
+google-genai
+scikit-learn
+numpy
+pandas
+werkzeug
+requests
+flask-cors
