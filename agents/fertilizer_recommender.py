@@ -2,7 +2,7 @@ import os, re, warnings
 # Suppress the unpickling warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 import pickle
-import pandas as pd
+from agents.pandas_compat import pd
 from agents.provider import Agent
 import aiohttp
 import json
@@ -39,7 +39,7 @@ from agents.knowledge_base import get_fert_details, FERT_LABEL_MAP
 class FertilizerRecommender:
     def __init__(self, GEN_API_KEY):
         self.agent = Agent(GEN_API_KEY)
-        self.model_path = './agents/model/fertilizer.pkl'
+        self.model_path = os.path.join(os.path.dirname(__file__), 'model', 'fertilizer.pkl')
         self.crop_mapping = {
             'sugarcane': 1, 'jowar': 2, 'sorghum': 2, 'cotton': 3,
             'rice': 4, 'wheat': 5, 'groundnut': 6, 'maize': 7,

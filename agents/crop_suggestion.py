@@ -2,11 +2,13 @@ from agents.provider import Agent
 from agents.weather_agent import get_weather_data
 from agents.knowledge_base import DEFAULT_CROP, get_crop_details
 import joblib
-import pandas as pd
+from agents.pandas_compat import pd
+import os
 import re
 import time
 
-model = joblib.load('./agents/model/crop_model.pkl')
+MODEL_PATH = os.path.join(os.path.dirname(__file__), 'model', 'crop_model.pkl')
+model = joblib.load(MODEL_PATH)
 
 class CropSuggestionInputError(ValueError):
     pass

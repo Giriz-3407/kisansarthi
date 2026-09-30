@@ -3,9 +3,9 @@ from google.genai import types
 import os
 
 class Agent:
-    def __init__(self, GEN_API_KEY):
+    def __init__(self, GEN_API_KEY=None):
         self.api_key = GEN_API_KEY
-        self.client = genai.Client(api_key=GEN_API_KEY)
+        self.client = genai.Client(api_key=GEN_API_KEY) if GEN_API_KEY else None
 
     def execute(self, task, data=None):
         contents = [task]

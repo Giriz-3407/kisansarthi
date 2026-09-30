@@ -1,3 +1,4 @@
+import agents.pandas_compat
 import sqlite3  # Reloaded with new API keys
 import os
 import json
@@ -180,7 +181,7 @@ def home():
 def register():
     data = request.get_json()
     if not data or not data.get('password') or not data.get('name'):
-        abort(400, description="Missing required fields: name, email, password.")
+        abort(400, description="Missing required fields: name, password.")
 
     # email = data['email']
     name = data['name']
@@ -226,7 +227,7 @@ def login():
 @app.route('/api/v1/users/me', methods=['GET'])
 @auth_required
 def get_current_user():
-    user = query_db("SELECT id, name, email, phone_number, created_at FROM users WHERE id = ?", (g.user['id'],), one=True)
+    user = query_db("SELECT id, name, phone_number, created_at FROM users WHERE id = ?", (g.user['id'],), one=True)
     if not user:
         # This case should ideally not happen if auth_required works correctly
         abort(404, description="User not found.")
@@ -242,7 +243,7 @@ def update_current_user():
         abort(400, description="No update data provided.")
 
     # Only allow updating specific fields
-    allowed_fields = ['name', 'phone_number', 'email']
+    allowed_fields = ['name', 'phone_number']
     update_fields = []
     update_values = []
 
@@ -267,7 +268,7 @@ def update_current_user():
     execute_db(sql, tuple(update_values))
 
     # Fetch and return the updated user (excluding password hash)
-    user = query_db("SELECT id, name, email, phone_number, created_at, updated_at FROM users WHERE id = ?", (g.user['id'],), one=True)
+    user = query_db("SELECT id, name, phone_number, created_at, updated_at FROM users WHERE id = ?", (g.user['id'],), one=True)
     return jsonify(user), 200
 
 # 3. Farms (/farms) - (Ownership checks seem okay)
@@ -2025,8 +2026,8 @@ if __name__ == '__main__':
             print("Initializing default system user.")
             # Use the same hashing as the register endpoint
             hashed_password = generate_password_hash('password')
-            cursor.execute("INSERT INTO users (id, name, email, password_hash) VALUES (?, ?, ?, ?)",
-                        (1, 'Test User', 'test@example.com', hashed_password))
+            cursor.execute("INSERT INTO users (id, name, phone_number, password_hash) VALUES (?, ?, ?, ?)",
+                        (1, 'Test User', '9999999999', hashed_password))
             needs_commit = True
 
         # Check for crops
@@ -2075,24 +2076,24 @@ if __name__ == '__main__':
     print(f"Starting Flask app on http://127.0.0.1:5000")
     print("Using SECRET_KEY: " + ("Set from environment variable." if os.environ.get('SECRET_KEY') else f"'{SECRET_KEY}' (Development Only!)"))
     print("=" * 60)
-    print("🚀 KisanSarthi Backend Server Started")
+    print("[+] KisanSarthi Backend Server Started")
     print("=" * 60)
     print("Server running on http://0.0.0.0:5000")
     print("Access from emulator: http://10.0.2.2:5000")
     print("Access from device: Use your computer's LAN IP (e.g., http://192.168.X.X:5000)")
     print("")
-    print("📌 Available Endpoints:")
-    print("   - GET  /              → Health check")
-    print("   - POST /api/v1/auth/register → Register")
-    print("   - POST /api/v1/auth/login    → Login")
-    print("   - GET  /api/v1/farms        → List farms (auth required)")
-    print("   - GET  /api/v1/courses      → List courses (auth required)")
-    print("   - POST /api/v1/disease/diagnose → Disease diagnosis")
-    print("   - POST /api/v1/fertilizer/recommend → Fertilizer recommendation")
-    print("   - POST /api/v1/crop/suggest   → Crop suggestion")
-    print("   - GET  /api/v1/weather/current → Weather (auth required)")
+    print("[-] Available Endpoints:")
+    print("   - GET  /              -> Health check")
+    print("   - POST /api/v1/auth/register -> Register")
+    print("   - POST /api/v1/auth/login    -> Login")
+    print("   - GET  /api/v1/farms        -> List farms (auth required)")
+    print("   - GET  /api/v1/courses      -> List courses (auth required)")
+    print("   - POST /api/v1/disease/diagnose -> Disease diagnosis")
+    print("   - POST /api/v1/fertilizer/recommend -> Fertilizer recommendation")
+    print("   - POST /api/v1/crop/suggest   -> Crop suggestion")
+    print("   - GET  /api/v1/weather/current -> Weather (auth required)")
     print("")
-    print("🔐 Authentication: Use 'Bearer demo-token-user-<user_id>'")
+    print("[Auth] Authentication: Use 'Bearer demo-token-user-<user_id>'")
     print("   Example: Authorization: Bearer demo-token-user-1")
     print("=" * 60)
     # Use debug=True ONLY for development. It enables auto-reloading and detailed error pages.
