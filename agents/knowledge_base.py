@@ -134,6 +134,150 @@ CROP_DATA = {
         "water_requirement": "Low; very water-efficient.",
         "expected_yield": "0.7 - 1.0 tons per hectare",
         "Recommendations": "Pick mature pods timely to avoid shattering.\\nSeed treatment with Rhizobium culture is beneficial."
+    },
+    "watermelon": {
+        "Match": 0.92,
+        "Description": "Watermelon is a high-water, warm-season dessert fruit crop.",
+        "Explanation": "Your warm temperatures and well-drained sandy loam conditions support rapid vine spreading and high sugar content in fruits.",
+        "growing_season": "Summer / Zaid (January-March sowing)",
+        "water_requirement": "Moderate; requires regular light irrigation, avoid overwatering near ripening.",
+        "expected_yield": "25 - 40 tons per hectare",
+        "Recommendations": "Adopt plastic mulching to conserve moisture and suppress weeds.\\nEnsure bee pollination during morning flowering."
+    },
+    "muskmelon": {
+        "Match": 0.90,
+        "Description": "Muskmelon (Kharbooja) is a sweet commercial cucurbit fruit crop.",
+        "Explanation": "The hot and dry maturation climate in your region is ideal for developing high fruit sweetness and characteristic netting.",
+        "growing_season": "Summer / Zaid (February-March sowing)",
+        "water_requirement": "Moderate; drip irrigation with fertigation gives optimal brix levels.",
+        "expected_yield": "15 - 25 tons per hectare",
+        "Recommendations": "Withhold irrigation 5-7 days before harvest for sweeter fruits.\\nMonitor for fruit fly infestations."
+    },
+    "coconut": {
+        "Match": 0.93,
+        "Description": "Coconut is a perennial plantation palm thriving in humid tropical climates.",
+        "Explanation": "Your high relative humidity and warm coastal or tropical conditions are well-suited for sustained coconut bunch development.",
+        "growing_season": "Perennial (Planting in June-September monsoon)",
+        "water_requirement": "High; requires 40-50 liters/palm/day through basin or drip irrigation.",
+        "expected_yield": "80 - 120 nuts per palm per year",
+        "Recommendations": "Apply organic mulch around palm basins to retain soil moisture.\\nApply split doses of Potash and Magnesium."
+    },
+    "coffee": {
+        "Match": 0.91,
+        "Description": "Coffee (Arabica / Robusta) is a premier shade-grown plantation beverage crop.",
+        "Explanation": "Your elevation, moderate temperature range, and shaded organic soil profile provide ideal microclimate for coffee berry development.",
+        "growing_season": "Perennial (Harvesting in November-February)",
+        "water_requirement": "Moderate to High; blossom showers in March-April are crucial.",
+        "expected_yield": "1.0 - 2.5 tons of clean coffee per hectare",
+        "Recommendations": "Maintain 2-tier shade canopy to prevent sun scorch.\\nMonitor for coffee berry borer and white stem borer."
+    },
+    "jute": {
+        "Match": 0.90,
+        "Description": "Jute is a natural bast fiber crop termed the 'Golden Fiber'.",
+        "Explanation": "Your warm humid climate and alluvial soil with good monsoon rainfall facilitate tall vegetative growth and clean fiber retting.",
+        "growing_season": "Kharif (March-May sowing, 120 days crop)",
+        "water_requirement": "High; thrives in wet floodplains with 150+ mm monthly rainfall.",
+        "expected_yield": "2.5 - 3.5 tons of dry fiber per hectare",
+        "Recommendations": "Harvest at small-pod stage for optimum fiber strength and luster.\\nEnsure clean running water for retting."
+    },
+    "kidneybeans": {
+        "Match": 0.88,
+        "Description": "Kidney Beans (Rajma) is a high-protein, cool-weather legume.",
+        "Explanation": "Your mild temperature conditions and slightly acidic, well-aerated soil are well-matched for Rajma root development.",
+        "growing_season": "Rabi (Plains: Oct-Nov) / Kharif (Hills: May-June)",
+        "water_requirement": "Moderate; critical irrigation at flowering and pod filling.",
+        "expected_yield": "1.5 - 2.2 tons per hectare",
+        "Recommendations": "Since Rajma does not nodulate extensively, apply starter Nitrogen (40-60 kg/ha).\\nAvoid waterlogging."
+    },
+    "mothbeans": {
+        "Match": 0.87,
+        "Description": "Moth Bean (Matki) is an exceptionally drought-hardy, semi-arid pulse crop.",
+        "Explanation": "Your arid to semi-arid climate with light soil supports Moth Bean's low moisture needs and deep taproot system.",
+        "growing_season": "Kharif (July sowing)",
+        "water_requirement": "Very Low; survives with 250-400 mm total rainfall.",
+        "expected_yield": "0.6 - 1.0 ton per hectare",
+        "Recommendations": "Excellent cover crop to prevent soil erosion in drylands.\\nHarvest early in the morning to prevent pod shattering."
+    },
+    "wheat": {
+        "Match": 0.94,
+        "Description": "Wheat is the premier Rabi cereal staple in northern and central India.",
+        "Explanation": "Your cool winter temperatures and loamy, well-drained soil provide the ideal environment for tillering and grain filling.",
+        "growing_season": "Rabi Season (November sowing, March-April harvest)",
+        "water_requirement": "Moderate; requires 4-6 critical irrigations (Crown root initiation, flowering, milk stage).",
+        "expected_yield": "4.5 - 6.0 tons per hectare",
+        "Recommendations": "Apply Crown Root Initiation (CRI) irrigation at 21 days after sowing.\\nEnsure balanced NPK + Zinc fertilization."
+    },
+    "sugarcane": {
+        "Match": 0.93,
+        "Description": "Sugarcane is a long-duration commercial cash and sugar crop.",
+        "Explanation": "Your high nutrient availability, deep soil profile, and warm sunshine support robust cane elongation and high sucrose accumulation.",
+        "growing_season": "Year-round (Adsali: July-Aug, Pre-seasonal: Oct-Nov, Suru: Jan-Feb)",
+        "water_requirement": "Very High; requires 1500-2500 mm water across its 12-18 month cycle.",
+        "expected_yield": "80 - 130 tons per hectare",
+        "Recommendations": "Adopt drip irrigation to save 40% water.\\nTrash mulching between cane rows preserves soil moisture."
+    },
+    "groundnut": {
+        "Match": 0.89,
+        "Description": "Groundnut (Peanut) is an important oilseed and food legume.",
+        "Explanation": "Your light sandy loam soil enables easy peg penetration and uniform pod development without pod rot.",
+        "growing_season": "Kharif (June-July) and Summer (Jan-Feb)",
+        "water_requirement": "Moderate; critical moisture needed at pegging and pod formation.",
+        "expected_yield": "2.0 - 3.5 tons per hectare",
+        "Recommendations": "Apply Gypsum (400-500 kg/ha) at flowering to supply Calcium and Sulphur for bold pods.\\nAvoid deep hoeing after pegging."
+    },
+    "tea": {
+        "Match": 0.91,
+        "Description": "Tea is a high-value plantation perennial harvested for its tender shoots.",
+        "Explanation": "Your acidic soil pH (4.5-5.5) and high rainfall with excellent hillside drainage prevent water stagnation and foster tender leaf flushes.",
+        "growing_season": "Perennial (Plucking from March to November)",
+        "water_requirement": "High; requires 1500-2500 mm annual rainfall distributed well.",
+        "expected_yield": "2.0 - 3.5 tons of made tea per hectare",
+        "Recommendations": "Maintain soil acidity with ammonium sulphate.\\nPrune bushes systematically to encourage vegetative flush."
+    },
+    "tobacco": {
+        "Match": 0.88,
+        "Description": "Tobacco is a specialized commercial cash crop grown for cured leaf production.",
+        "Explanation": "Your soil texture and potassium levels support good leaf burning quality, elasticity, and uniform nicotine content.",
+        "growing_season": "Rabi (October-November transplanting)",
+        "water_requirement": "Moderate; avoid chlorine-rich water to maintain leaf quality.",
+        "expected_yield": "1.8 - 2.8 tons of cured leaf per hectare",
+        "Recommendations": "Topping and de-suckering are vital for leaf expansion.\\nApply high Potash (K2O) for superior leaf grade."
+    },
+    "millet": {
+        "Match": 0.90,
+        "Description": "Millets (Bajra, Jowar, Ragi) are climate-resilient, nutrient-rich nutri-cereals.",
+        "Explanation": "Your dryland climate, lower rainfall, and warm temperatures are perfectly matched with millet's high water-use efficiency and drought resistance.",
+        "growing_season": "Kharif (July sowing) and Summer",
+        "water_requirement": "Low; produces sustainable yields with only 350-500 mm rainfall.",
+        "expected_yield": "2.5 - 4.0 tons per hectare",
+        "Recommendations": "Practice line sowing with 45cm row spacing.\\nApply basal Phosphorus for vigorous seedling root establishment."
+    },
+    "peas": {
+        "Match": 0.90,
+        "Description": "Green Peas (Matar) is a nutritious, cool-season short-duration vegetable and pulse.",
+        "Explanation": "Your mild winter temperatures and well-drained neutral pH soil promote rapid flowering and sweet pod filling in 65-80 days.",
+        "growing_season": "Rabi (October-November sowing)",
+        "water_requirement": "Low to Moderate; 2-3 light irrigations at flowering and pod filling.",
+        "expected_yield": "6 - 10 tons of green pods per hectare",
+        "Recommendations": "Inoculate seeds with Rhizobium leguminosarum culture.\\nHarvest green pods when fully developed but still tender."
+    },
+    "adzuki": {
+        "Match": 0.88,
+        "Description": "Adzuki Bean is an antioxidant-rich, high-value specialty red pulse crop.",
+        "Explanation": "Your well-drained loamy soil and moderate temperate-subtropical conditions support uniform flowering and pod maturation.",
+        "growing_season": "Kharif (June-July) / Spring",
+        "water_requirement": "Low to Moderate; sensitive to waterlogging.",
+        "expected_yield": "1.2 - 2.0 tons per hectare",
+        "Recommendations": "Maintain optimum row spacing of 30-40 cm.\\nAvoid high nitrogen fertilizers as the plant fixes atmospheric nitrogen."
+    },
+    "rubber": {
+        "Match": 0.90,
+        "Description": "Natural Rubber (Hevea brasiliensis) is a major tropical plantation tree.",
+        "Explanation": "Your high annual rainfall, humid tropical atmosphere, and acidic loamy soil provide the necessary climate for high latex yield.",
+        "growing_season": "Perennial (Planting in June-July monsoon, tapping starts after 7 years)",
+        "water_requirement": "High; requires 2000-3000 mm well-distributed rainfall with no prolonged dry season.",
+        "expected_yield": "1.5 - 2.5 tons of dry rubber per hectare per year",
+        "Recommendations": "Adopt controlled tapping systems to protect bark.\\nUse rain guards during monsoon for uninterrupted tapping."
     }
 }
 

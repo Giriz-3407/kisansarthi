@@ -706,6 +706,191 @@ def list_farm_hardware_devices(farm_id):
 
     return jsonify({"devices": devices, "total": total}), 200
 
+
+@app.route('/api/v1/farms/<int:farm_id>/live-sensor-data', methods=['GET'])
+@auth_required
+def get_farm_live_sensor_data(farm_id):
+    # Verify farm ownership
+    farm = query_db("SELECT id, farm_name FROM farms WHERE id = ? AND user_id = ?", (farm_id, g.user['id']), one=True)
+    if not farm:
+        return jsonify({
+            "error": "ACCESS_DENIED",
+            "message": "Farm not found or access denied."
+        }), 403
+
+    # Find the active hardware device for this farm
+    device = query_db("""
+        SELECT hd.id, hd.hardware_unique_id, hd.device_name, hd.status, hd.assigned_land_id,
+               l.land_name as assigned_land_name, hd.last_seen_at
+        FROM hardware_devices hd
+        LEFT JOIN lands l ON hd.assigned_land_id = l.id
+        WHERE hd.farm_id = ?
+        ORDER BY CASE WHEN hd.status = 'active' THEN 0 ELSE 1 END, hd.last_seen_at DESC
+        LIMIT 1
+    """, (farm_id,), one=True)
+
+    if not device:
+        return jsonify({
+            "error": "NO_DEVICE",
+            "message": "No hardware sensor device registered for this farm. Please link an ESP32 sensor node."
+        }), 404
+
+    # Check if device has ever sent data
+    if not device.get('last_seen_at'):
+        return jsonify({
+            "error": "DEVICE_OFFLINE",
+            "message": f"Device '{device.get('device_name') or device.get('hardware_unique_id')}' has not reported any telemetry yet. Please ensure your ESP32 is powered on and connected."
+        }), 503
+
+    # Check recency of last_seen_at (within last 90 seconds)
+    try:
+        last_seen_str = str(device['last_seen_at']).replace('T', ' ').split('.')[0]
+        last_seen = datetime.datetime.strptime(last_seen_str, "%Y-%m-%d %H:%M:%S").replace(tzinfo=datetime.timezone.utc)
+        now_utc = datetime.datetime.now(datetime.timezone.utc)
+        seconds_ago = (now_utc - last_seen).total_seconds()
+        if seconds_ago > 90:
+            return jsonify({
+                "error": "DEVICE_OFFLINE",
+                "message": f"Sensor node '{device.get('device_name') or device.get('hardware_unique_id')}' is offline (last seen {int(seconds_ago)}s ago). Please ensure ESP32 is powered and transmitting."
+            }), 503
+    except Exception as e:
+        print(f"Warning: could not parse last_seen_at: {e}")
+
+    # Fetch recent readings over the sampling window (e.g. last 4 to 8 samples)
+    sample_count = request.args.get('samples', default=5, type=int)
+    sample_count = max(3, min(sample_count, 10))
+
+    readings = query_db("""
+        SELECT id, timestamp, received_at, temperature_value, humidity_value,
+               ph_value, nitrogen_value, phosphorus_value, potassium_value, rainfall
+        FROM soil_readings
+        WHERE farm_id = ? AND device_id = ?
+        ORDER BY id DESC
+        LIMIT ?
+    """, (farm_id, device['id'], sample_count))
+
+    if not readings or len(readings) < 2:
+        return jsonify({
+            "error": "INSUFFICIENT_SAMPLES",
+            "message": f"Only found {len(readings) if readings else 0} sample(s). Need at least 2 consecutive live readings to calculate a reliable average. Please wait a moment and try again."
+        }), 400
+
+    # Check recency of latest reading
+    latest_r = readings[0]
+    if latest_r.get('received_at'):
+        try:
+            rec_str = str(latest_r['received_at']).replace('T', ' ').split('.')[0]
+            rec_dt = datetime.datetime.strptime(rec_str, "%Y-%m-%d %H:%M:%S").replace(tzinfo=datetime.timezone.utc)
+            if (datetime.datetime.now(datetime.timezone.utc) - rec_dt).total_seconds() > 90:
+                return jsonify({
+                    "error": "STALE_DATA",
+                    "message": "Telemetry stream stopped. No new readings arrived within the last 90 seconds."
+                }), 503
+        except Exception as e:
+            print(f"Warning: could not parse received_at: {e}")
+
+    # Extract numeric values
+    temps = [float(r['temperature_value']) for r in readings if r.get('temperature_value') is not None]
+    moists = [float(r['humidity_value']) for r in readings if r.get('humidity_value') is not None]
+
+    if len(temps) < 2 or len(moists) < 2:
+        return jsonify({
+            "error": "INCOMPLETE_DATA",
+            "message": "Recent sensor readings are missing temperature or moisture data."
+        }), 400
+
+    # 1. Physical Disconnect / Out of bounds checks
+    for t in temps:
+        if t <= -50.0 or t == 85.0 or t == -127.0:
+            return jsonify({
+                "error": "SENSOR_DISCONNECTED",
+                "message": f"Temperature sensor disconnected or loose (reported {t}°C). Check DS18B20 wiring and 4.7kΩ pull-up resistor."
+            }), 422
+        if t < -5.0 or t > 65.0:
+            return jsonify({
+                "error": "TEMPERATURE_OUT_OF_RANGE",
+                "message": f"Temperature value ({t}°C) is out of realistic soil range (-5°C to 65°C)."
+            }), 422
+
+    for m in moists:
+        if m < 0.0 or m > 100.0:
+            return jsonify({
+                "error": "MOISTURE_OUT_OF_RANGE",
+                "message": f"Soil moisture value ({m}%) is out of realistic range (0% to 100%). Check moisture sensor power and pin."
+            }), 422
+
+    # 2. Fluctuation / Erratic Reading checks across the sampled window
+    temp_min, temp_max = min(temps), max(temps)
+    temp_range = round(temp_max - temp_min, 2)
+    temp_mean = sum(temps) / len(temps)
+    temp_std = round((sum((t - temp_mean) ** 2 for t in temps) / len(temps)) ** 0.5, 2)
+
+    moist_min, moist_max = min(moists), max(moists)
+    moist_range = round(moist_max - moist_min, 2)
+    moist_mean = sum(moists) / len(moists)
+    moist_std = round((sum((m - moist_mean) ** 2 for m in moists) / len(moists)) ** 0.5, 2)
+
+    # Erratic temperature swings > 2.5°C over a few seconds
+    if temp_range > 2.5 or temp_std > 1.2:
+        return jsonify({
+            "error": "ERRATIC_TEMPERATURE",
+            "message": f"Unrealistic temperature fluctuation detected (swung by {temp_range}°C across {len(temps)} samples). Please inspect DS18B20 probe connection for loose wires."
+        }), 422
+
+    # Erratic moisture swings > 10.0% over a few seconds
+    if moist_range > 10.0 or moist_std > 5.0:
+        return jsonify({
+            "error": "ERRATIC_MOISTURE",
+            "message": f"Unrealistic soil moisture fluctuation detected (swung by {moist_range}% across {len(moists)} samples). Ensure probe is steadily inserted into soil without moving."
+        }), 422
+
+    # 3. Calculate verified averages
+    avg_temp = round(temp_mean, 1)
+    avg_moist = round(moist_mean, 1)
+
+    # Optionally persist verified average into soil_readings if land is assigned
+    if request.args.get('save', 'true').lower() == 'true' and device.get('assigned_land_id'):
+        try:
+            execute_db("""
+                INSERT INTO soil_readings (
+                    device_id, land_id, farm_id, timestamp, ph_value,
+                    nitrogen_value, phosphorus_value, potassium_value,
+                    rainfall, temperature_value, humidity_value
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                device['id'],
+                device['assigned_land_id'],
+                farm_id,
+                datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                latest_r.get('ph_value') if latest_r.get('ph_value') is not None else 6.5,
+                latest_r.get('nitrogen_value') if latest_r.get('nitrogen_value') is not None else 45,
+                latest_r.get('phosphorus_value') if latest_r.get('phosphorus_value') is not None else 30,
+                latest_r.get('potassium_value') if latest_r.get('potassium_value') is not None else 40,
+                latest_r.get('rainfall') if latest_r.get('rainfall') is not None else 10.0,
+                avg_temp,
+                avg_moist
+            ))
+        except Exception as e:
+            print(f"Notice: Failed to persist verified average reading: {e}")
+
+    return jsonify({
+        "status": "success",
+        "device_id": device['id'],
+        "device_name": device.get('device_name') or device.get('hardware_unique_id'),
+        "hardware_unique_id": device.get('hardware_unique_id'),
+        "assigned_land_id": device.get('assigned_land_id'),
+        "assigned_land_name": device.get('assigned_land_name'),
+        "samples_collected": len(temps),
+        "temperature": avg_temp,
+        "humidity": avg_moist,
+        "temperature_range": temp_range,
+        "humidity_range": moist_range,
+        "temperature_stability": f"±{round(temp_range / 2, 1)}°C (Stable)",
+        "moisture_stability": f"±{round(moist_range / 2, 1)}% (Stable)",
+        "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat()
+    }), 200
+
+
 @app.route('/api/v1/hardware_devices/<int:device_id>', methods=['GET'])
 @auth_required
 def get_hardware_device(device_id):
